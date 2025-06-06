@@ -1,0 +1,166 @@
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f5f5f5;
+    padding-bottom: 60px; /* 为底部导航留出空间 */
+}
+
+/* 底部导航栏 */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #666;
+    font-size: 12px;
+    padding: 4px 0;
+    cursor: pointer;
+}
+
+.nav-item i {
+    font-size: 20px;
+    margin-bottom: 2px;
+}
+
+.nav-item.active {
+    color: #007bff;
+}
+
+/* 主要内容区域 */
+.content {
+    padding: 16px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* 页面标题和操作按钮 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header h2 {
+    font-size: 20px;
+    margin: 0;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* 菜品网格 */
+.dishes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+/* 菜品卡片 */
+.dish-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.dish-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.dish-info {
+    padding: 12px;
+}
+
+.dish-info h3 {
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.price {
+    color: #ff4d4f;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.availability {
+    color: #52c41a;
+    font-size: 12px;
+    margin: 4px 0;
+}
+
+.status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    background: #f5f5f5;
+    color: #666;
+}
+
+.status.active {
+    background: #e6f7ff;
+    color: #1890ff;
+}
+
+.edit-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* 响应式调整 */
+@media (min-width: 768px) {
+    .dishes-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* 按钮样式 */
+.btn {
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+} 

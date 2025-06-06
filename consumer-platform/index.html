@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Platform - Consumer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header with Search and Filter -->
+    <header class="header">
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search dishes or chefs..." class="search-input">
+        </div>
+        <button class="filter-btn">
+            <i class="fas fa-filter"></i>
+            Filter
+        </button>
+    </header>
+
+    <!-- Filter Drawer (Hidden by default) -->
+    <div class="filter-drawer" id="filterDrawer">
+        <div class="filter-header">
+            <h3>Filter Options</h3>
+            <button class="close-filter">&times;</button>
+        </div>
+        <div class="filter-content">
+            <div class="filter-section">
+                <h4>Available Time</h4>
+                <div class="filter-options">
+                    <label><input type="radio" name="time" value="today"> Today</label>
+                    <label><input type="radio" name="time" value="tomorrow"> Tomorrow</label>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>Delivery Method</h4>
+                <div class="filter-options">
+                    <label><input type="checkbox" name="delivery" value="home"> Home Delivery</label>
+                    <label><input type="checkbox" name="delivery" value="pickup"> Pickup</label>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>Price Range</h4>
+                <div class="filter-options">
+                    <label><input type="radio" name="price" value="0-10"> $0 - $10</label>
+                    <label><input type="radio" name="price" value="10-20"> $10 - $20</label>
+                    <label><input type="radio" name="price" value="20+"> $20+</label>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>Cuisine Type</h4>
+                <div class="filter-tags">
+                    <span class="tag">Chinese</span>
+                    <span class="tag">Japanese</span>
+                    <span class="tag">Italian</span>
+                    <span class="tag">Indian</span>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>Chef Tags</h4>
+                <div class="filter-tags">
+                    <span class="tag">Popular</span>
+                    <span class="tag">New</span>
+                    <span class="tag">High Rating</span>
+                    <span class="tag">Nearby</span>
+                </div>
+            </div>
+        </div>
+        <button class="apply-filter">Apply Filters</button>
+    </div>
+
+    <!-- Main Content - Dish Grid -->
+    <main class="dish-grid">
+        <!-- Dish cards will be dynamically loaded here -->
+        <div class="dish-card">
+            <div class="dish-image">
+                <img src="placeholder.jpg" alt="Dish" loading="lazy">
+                <span class="dish-tag">Today Available</span>
+            </div>
+            <div class="dish-info">
+                <h3 class="dish-name">Sample Dish</h3>
+                <p class="chef-name">Chef Name</p>
+                <div class="dish-details">
+                    <span class="price">$15</span>
+                    <span class="distance">1.2km</span>
+                </div>
+                <div class="dish-meta">
+                    <span class="rating">4.9 ★</span>
+                    <span class="reviews">(128)</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="script.js"></script>
+</body>
+</html> 

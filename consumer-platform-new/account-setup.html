@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新账号设置</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f5f5f5; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        .setup-box { background: #fff; padding: 32px 24px; border-radius: 16px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); width: 100%; max-width: 340px; text-align: center; }
+        .setup-box h2 { margin-bottom: 24px; color: #333; }
+        .setup-box input[type="text"] { width: 100%; padding: 12px; margin-bottom: 16px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
+        .setup-box input[type="text"]:focus { outline: none; border-color: #ff6b6b; }
+        .setup-box input[type="file"] { margin-bottom: 16px; }
+        .setup-box button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: #ff6b6b; color: #fff; font-size: 16px; cursor: pointer; transition: background 0.3s; }
+        .setup-box button:hover { background: #e55a5a; }
+        .avatar-btn { margin-bottom: 8px !important; background: #4CAF50 !important; }
+        .avatar-btn:hover { background: #45a049 !important; }
+        .avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 16px auto; display: block; background: #eee; border: 2px solid #ddd; }
+        .lang-switch { margin-top: 18px; }
+        .lang-switch select { padding: 8px; border-radius: 6px; border: 1px solid #ddd; background: white; }
+        .file-info { font-size: 13px; color: #888; margin-bottom: 8px; min-height: 18px; }
+        .platform-info { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; color: #666; }
+        .platform-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; color: white; font-size: 12px; margin-left: 8px; }
+        .consumer-badge { background: #ff6b6b; }
+        .cook-badge { background: #ffa726; }
+    </style>
+</head>
+<body>
+    <div class="setup-box">
+        <h2 id="setupTitle">新账号设置</h2>
+        <div id="platformInfo" class="platform-info">
+            <span id="platformText">平台：</span>
+            <span id="platformName">消费者平台</span>
+            <span id="platformBadge" class="platform-badge consumer-badge">Consumer</span>
+        </div>
+        <form id="setupForm" autocomplete="off">
+            <img id="avatarPreview" class="avatar-preview" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="avatar">
+            <input id="avatarInput" type="file" accept="image/*" style="display:none;">
+            <button id="avatarBtn" class="avatar-btn" type="button">选择头像</button>
+            <div id="avatarFileName" class="file-info">未选择文件</div>
+            <input id="displayName" type="text" placeholder="昵称" required maxlength="20">
+            <button id="finishSetupBtn" type="submit">完成设置</button>
+        </form>
+        <div class="lang-switch">
+            <label for="setupLang">语言/Language: </label>
+            <select id="setupLang">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+    </div>
+    <script>
+    const setupLangMap = {
+        zh: { 
+            setupTitle: '新账号设置', 
+            displayName: '昵称', 
+            finishSetupBtn: '完成设置', 
+            avatarAlt: '头像', 
+            setupSuccess: '设置完成！正在进入平台...', 
+            chooseAvatar: '选择头像', 
+            fileChosen: '已选择文件：', 
+            noFile: '未选择文件',
+            platformText: '平台：',
+            consumerPlatform: '消费者平台',
+            cookPlatform: '厨师平台',
+            displayNameRequired: '昵称是必填项',
+            errorOccurred: '发生错误，请重试'
+        },
+        en: { 
+            setupTitle: 'New Account Setup', 
+            displayName: 'Display Name', 
+            finishSetupBtn: 'Finish Setup', 
+            avatarAlt: 'Avatar', 
+            setupSuccess: 'Setup complete! Entering platform...', 
+            chooseAvatar: 'Choose Avatar', 
+            fileChosen: 'File chosen: ', 
+            noFile: 'No file chosen',
+            platformText: 'Platform:',
+            consumerPlatform: 'Consumer Platform',
+            cookPlatform: 'Cook Platform',
+            displayNameRequired: 'Display Name is required',
+            errorOccurred: 'An error occurred, please try again'
+        }
+    };
+    
+    function getPlatform() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('platform') || sessionStorage.getItem('newAccountPlatform') || 'consumer';
+    }
+    
+    function updateSetupLangUI() {
+        const lang = document.getElementById('setupLang').value;
+        const langData = setupLangMap[lang];
+        const platform = getPlatform();
+        
+        document.getElementById('setupTitle').textContent = langData.setupTitle;
+        document.getElementById('displayName').placeholder = langData.displayName;
+        document.getElementById('finishSetupBtn').textContent = langData.finishSetupBtn;
+        document.getElementById('avatarPreview').alt = langData.avatarAlt;
+        document.getElementById('avatarBtn').textContent = langData.chooseAvatar;
+        document.getElementById('platformText').textContent = langData.platformText;
+        
+        if (platform === 'cook') {
+            document.getElementById('platformName').textContent = langData.cookPlatform;
+            document.getElementById('platformBadge').textContent = 'Cook';
+            document.getElementById('platformBadge').className = 'platform-badge cook-badge';
+        } else {
+            document.getElementById('platformName').textContent = langData.consumerPlatform;
+            document.getElementById('platformBadge').textContent = 'Consumer';
+            document.getElementById('platformBadge').className = 'platform-badge consumer-badge';
+        }
+        
+        // Update file info if no file selected
+        if (!document.getElementById('avatarInput').files.length) {
+            document.getElementById('avatarFileName').textContent = langData.noFile;
+        }
+    }
+    
+    document.getElementById('setupLang').onchange = updateSetupLangUI;
+    
+    document.getElementById('avatarBtn').onclick = function() {
+        document.getElementById('avatarInput').click();
+    };
+    
+    document.getElementById('avatarInput').onchange = function(e) {
+        const file = e.target.files[0];
+        const lang = document.getElementById('setupLang').value;
+        const langData = setupLangMap[lang];
+        
+        if (file) {
+            // Check file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert(lang === 'zh' ? '文件大小不能超过2MB' : 'File size cannot exceed 2MB');
+                this.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                document.getElementById('avatarPreview').src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+            document.getElementById('avatarFileName').textContent = langData.fileChosen + file.name;
+        } else {
+            document.getElementById('avatarFileName').textContent = langData.noFile;
+            document.getElementById('avatarPreview').src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+        }
+    };
+    
+    document.getElementById('setupForm').onsubmit = function(e) {
+        e.preventDefault();
+        const lang = document.getElementById('setupLang').value;
+        const langData = setupLangMap[lang];
+        const displayName = document.getElementById('displayName').value.trim();
+        
+        if (!displayName) {
+            alert(langData.displayNameRequired);
+            return;
+        }
+        
+        // Get info from sessionStorage
+        const username = sessionStorage.getItem('newAccountUsername');
+        const password = sessionStorage.getItem('newAccountPassword');
+        const platform = getPlatform();
+        
+        if (!username || !password) {
+            alert(langData.errorOccurred);
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        // Save avatar as base64
+        const avatar = document.getElementById('avatarPreview').src;
+        
+        // Update user in users array
+        let users = JSON.parse(localStorage.getItem('users') || '[]');
+        const userIndex = users.findIndex(u => u.username === username && u.platform === platform);
+        
+        if (userIndex !== -1) {
+            users[userIndex].displayName = displayName;
+            users[userIndex].avatar = avatar;
+            users[userIndex].setupCompleted = true;
+            users[userIndex].updatedAt = new Date().toISOString();
+            
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Save current user for the app
+            localStorage.setItem(platform + 'User', JSON.stringify(users[userIndex]));
+            
+            // Clear session storage
+            sessionStorage.removeItem('newAccountUsername');
+            sessionStorage.removeItem('newAccountPassword');
+            sessionStorage.removeItem('newAccountPlatform');
+            
+            alert(langData.setupSuccess);
+            
+            setTimeout(() => {
+                if (platform === 'cook') {
+                    window.location.href = 'cook-app.html';
+                } else {
+                    window.location.href = 'consumer-app.html';
+                }
+            }, 1000);
+        } else {
+            alert(langData.errorOccurred);
+            window.location.href = 'login.html';
+        }
+    };
+    
+    // Initialize UI
+    updateSetupLangUI();
+    
+    // Auto-focus display name input
+    setTimeout(() => {
+        document.getElementById('displayName').focus();
+    }, 300);
+    </script>
+</body>
+</html> 

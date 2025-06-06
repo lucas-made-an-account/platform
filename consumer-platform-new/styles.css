@@ -1,0 +1,905 @@
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f5f5f5;
+    padding-bottom: 60px; /* 为底部导航留出空间 */
+}
+
+/* 底部导航栏 */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #666;
+    font-size: 12px;
+    padding: 4px 0;
+    cursor: pointer;
+}
+
+.nav-item i {
+    font-size: 20px;
+    margin-bottom: 2px;
+}
+
+.nav-item.active {
+    color: #007bff;
+}
+
+/* 主要内容区域 */
+.content {
+    padding: 16px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* 页面标题和操作按钮 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header h2 {
+    font-size: 20px;
+    margin: 0;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* 页面通用样式 */
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+/* 菜品管理页面 */
+.dishes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+/* 空白状态 */
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.empty-state i {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 16px;
+}
+
+.empty-state p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* 菜品卡片 */
+.dish-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.dish-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.dish-info {
+    padding: 12px;
+}
+
+.dish-info h3 {
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.price {
+    color: #ff4d4f;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.availability {
+    color: #52c41a;
+    font-size: 12px;
+    margin: 4px 0;
+}
+
+.status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    background: #f5f5f5;
+    color: #666;
+}
+
+.status.active {
+    background: #e6f7ff;
+    color: #1890ff;
+}
+
+.status.inactive {
+    background: #fff1f0;
+    color: #ff4d4f;
+}
+
+.edit-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* 批量模式 */
+.batch-mode .dish-card {
+    cursor: pointer;
+}
+
+.batch-mode .dish-card::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+}
+
+.batch-mode .dish-card.selected::before {
+    background-color: #007bff;
+}
+
+.batch-mode .edit-btn {
+    display: none;
+}
+
+.batch-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+/* 模态框样式 */
+.modal {
+    z-index: 1050;
+}
+
+.modal-dialog {
+    max-width: 500px;
+    margin: 1.75rem auto;
+}
+
+.modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* 接单设置页面 */
+.settings-container {
+    padding: 20px;
+}
+
+.settings-container h3 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #666;
+}
+
+.form-check {
+    margin-bottom: 15px;
+}
+
+.form-check-label {
+    color: #666;
+}
+
+.setting-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.setting-card h3 {
+    font-size: 16px;
+    margin-bottom: 16px;
+}
+
+.day-selector {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.day-item {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f5f5f5;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.day-item.active {
+    background: #007bff;
+    color: white;
+}
+
+.time-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.time-range input {
+    width: 120px;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.delivery-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.delivery-options {
+    padding-left: 16px;
+    margin-top: 8px;
+}
+
+/* 厨房信息页面 */
+.kitchen-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.photo-upload h3, .kitchen-info h3, .contact-info h3 {
+    font-size: 16px;
+    margin-bottom: 16px;
+}
+
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.photo-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.photo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.add-photo {
+    background: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    cursor: pointer;
+}
+
+.add-photo i {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.delete-photo {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.photo-hint {
+    font-size: 12px;
+    color: #666;
+}
+
+.kitchen-info textarea {
+    resize: none;
+}
+
+.contact-item {
+    margin-bottom: 16px;
+}
+
+.contact-item label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.qr-code {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.qr-code img {
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+}
+
+/* 消费者评价页面 */
+.reviews-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.reviews-summary {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+}
+
+.rating {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.rating-score {
+    font-size: 36px;
+    font-weight: bold;
+    color: #ff4d4f;
+}
+
+.rating-stars {
+    color: #ff4d4f;
+    margin: 8px 0;
+}
+
+.rating-count {
+    font-size: 12px;
+    color: #666;
+}
+
+.rating-stats {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #666;
+}
+
+.stat-value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+.reviews-filter {
+    margin-bottom: 16px;
+}
+
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.review-item {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.reviewer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.reviewer-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.reviewer-name {
+    font-weight: 500;
+}
+
+.review-rating {
+    color: #ff4d4f;
+}
+
+.review-content p {
+    margin-bottom: 8px;
+}
+
+.review-dish, .review-time {
+    font-size: 12px;
+    color: #666;
+}
+
+/* 我的资料页面 */
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.profile-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-avatar img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-form {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.id-upload {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.id-front, .id-back {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.id-front img, .id-back img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+/* 响应式调整 */
+@media (min-width: 768px) {
+    .dishes-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .photo-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+/* 按钮样式 */
+.btn {
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-outline-primary {
+    color: #007bff;
+    border-color: #007bff;
+    background-color: transparent;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.mt-4 {
+    margin-top: 1.5rem;
+}
+
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+/* Profile Page Styles */
+.profile-header {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+    border-bottom: 1px solid #dee2e6;
+}
+
+.profile-avatar {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 15px;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.profile-avatar button {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 5px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #007bff;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.profile-content {
+    padding: 20px;
+}
+
+.profile-section {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.profile-section h3 {
+    margin-bottom: 15px;
+    color: #343a40;
+}
+
+.kitchen-photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.kitchen-photos img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* Multiple Image Upload Styles */
+.dish-images-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.dish-preview-image {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+    position: relative;
+}
+
+.dish-preview-image .remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255,255,255,0.9);
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.image-upload-container {
+    margin: 20px 0;
+}
+
+.image-upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.image-upload-area:hover,
+.image-upload-area.dragover {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.image-upload-area i {
+    font-size: 2rem;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+.image-preview-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.dish-preview-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    position: relative;
+}
+
+.remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.time-selection {
+    margin: 20px 0;
+}
+
+.time-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.time-btn {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.time-btn:hover {
+    background: #f8f9fa;
+}
+
+.time-btn.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.custom-time-input {
+    display: none;
+    margin-top: 15px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.custom-time-input.show {
+    display: block;
+}
+
+.time-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.time-input-group label {
+    margin: 0;
+    white-space: nowrap;
+}
+
+/* Map Styles */
+#map {
+    height: 300px;
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.leaflet-container {
+    height: 100%;
+    width: 100%;
+}
+
+/* Settings List Styles */
+.settings-list .btn {
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.settings-list .btn i {
+    font-size: 1.2rem;
+} 

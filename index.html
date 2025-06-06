@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家厨平台</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <!-- 底部导航栏 -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" data-page="main">
+            <i class="bi bi-house"></i>
+            <span>主页</span>
+        </div>
+        <div class="nav-item" data-page="dishes">
+            <i class="bi bi-grid-3x3-gap"></i>
+            <span>菜品管理</span>
+        </div>
+        <div class="nav-item" data-page="orders">
+            <i class="bi bi-clock"></i>
+            <span>接单设置</span>
+        </div>
+        <div class="nav-item" data-page="reviews">
+            <i class="bi bi-star"></i>
+            <span>消费者评价</span>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="content">
+        <!-- 主页 -->
+        <section id="main-page" class="page active">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <img src="placeholder-avatar.png" alt="头像" id="profile-avatar">
+                    <button class="btn btn-sm btn-outline-primary" id="change-avatar-btn">
+                        <i class="bi bi-camera"></i>
+                    </button>
+                </div>
+                <h2 id="profile-name">厨师名称</h2>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="total-dishes">0</span>
+                        <span class="stat-label">菜品</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="total-orders">0</span>
+                        <span class="stat-label">订单</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="average-rating">0.0</span>
+                        <span class="stat-label">评分</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-content">
+                <div class="profile-section">
+                    <h3>个人简介</h3>
+                    <p id="profile-description">暂无简介</p>
+                    <button class="btn btn-outline-primary btn-sm" id="edit-description-btn">
+                        <i class="bi bi-pencil"></i> 编辑
+                    </button>
+                </div>
+
+                <div class="profile-section">
+                    <h3>厨房信息</h3>
+                    <div class="kitchen-photos" id="kitchen-photos">
+                        <!-- 厨房照片将在这里动态添加 -->
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm" id="edit-kitchen-btn">
+                        <i class="bi bi-pencil"></i> 编辑厨房信息
+                    </button>
+                </div>
+
+                <div class="profile-section">
+                    <h3>位置信息</h3>
+                    <div id="map" style="height: 200px; margin-bottom: 10px;"></div>
+                    <button class="btn btn-outline-primary btn-sm" id="edit-location-btn">
+                        <i class="bi bi-geo-alt"></i> 更新位置
+                    </button>
+                </div>
+
+                <div class="profile-section">
+                    <h3>设置</h3>
+                    <div class="settings-list">
+                        <button class="btn btn-outline-secondary w-100 text-start mb-2" id="account-settings-btn">
+                            <i class="bi bi-person"></i> 账号设置
+                        </button>
+                        <button class="btn btn-outline-secondary w-100 text-start mb-2" id="notification-settings-btn">
+                            <i class="bi bi-bell"></i> 通知设置
+                        </button>
+                        <button class="btn btn-outline-secondary w-100 text-start" id="privacy-settings-btn">
+                            <i class="bi bi-shield-lock"></i> 隐私设置
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 菜品管理页面 -->
+        <section id="dishes-page" class="page active">
+            <div class="header">
+                <h2>菜品管理</h2>
+                <div class="actions">
+                    <button class="btn btn-outline-primary" id="batch-mode-btn">
+                        <i class="bi bi-check2-square"></i> 批量模式
+                    </button>
+                    <button class="btn btn-primary" id="add-dish-btn">
+                        <i class="bi bi-plus"></i> 添加菜品
+                    </button>
+                </div>
+            </div>
+            <div class="batch-actions" style="display: none;">
+                <button class="btn btn-danger" id="delete-selected-btn">
+                    <i class="bi bi-trash"></i> 删除选中
+                </button>
+                <button class="btn btn-secondary" id="cancel-batch-btn">
+                    取消
+                </button>
+            </div>
+            <div class="dishes-grid" id="dishes-container">
+                <!-- 空白状态 -->
+                <div class="empty-state">
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                    <p>暂无菜品</p>
+                    <button class="btn btn-primary" id="add-first-dish">
+                        <i class="bi bi-plus-lg"></i> 添加第一个菜品
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 接单设置页面 -->
+        <section id="orders-page" class="page">
+            <div class="header">
+                <h2>接单设置</h2>
+            </div>
+            <div class="settings-container">
+                <div class="setting-card">
+                    <h3>接单时间段</h3>
+                    <div class="time-settings">
+                        <div class="day-selector">
+                            <div class="day-item active">周一</div>
+                            <div class="day-item active">周二</div>
+                            <div class="day-item active">周三</div>
+                            <div class="day-item active">周四</div>
+                            <div class="day-item active">周五</div>
+                            <div class="day-item">周六</div>
+                            <div class="day-item">周日</div>
+                        </div>
+                        <div class="time-range">
+                            <input type="time" value="08:00" class="form-control">
+                            <span>至</span>
+                            <input type="time" value="11:00" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-card">
+                    <h3>出菜时间段</h3>
+                    <div class="time-settings">
+                        <div class="day-selector">
+                            <div class="day-item active">周一</div>
+                            <div class="day-item active">周二</div>
+                            <div class="day-item active">周三</div>
+                            <div class="day-item active">周四</div>
+                            <div class="day-item active">周五</div>
+                            <div class="day-item">周六</div>
+                            <div class="day-item">周日</div>
+                        </div>
+                        <div class="time-range">
+                            <input type="time" value="13:00" class="form-control">
+                            <span>至</span>
+                            <input type="time" value="17:00" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-card">
+                    <h3>取餐规则</h3>
+                    <div class="radio-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="pickupRule" id="sameDay" checked>
+                            <label class="form-check-label" for="sameDay">
+                                允许当日取餐
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="pickupRule" id="nextDay">
+                            <label class="form-check-label" for="nextDay">
+                                仅允许次日及以后取餐
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-card">
+                    <h3>配送设置</h3>
+                    <div class="delivery-settings">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="homeDelivery" checked>
+                            <label class="form-check-label" for="homeDelivery">
+                                家庭地址配送
+                            </label>
+                        </div>
+                        <div class="delivery-options" id="homeDeliveryOptions">
+                            <div class="mb-3">
+                                <label for="deliveryRange" class="form-label">配送范围</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="deliveryRange" value="5">
+                                    <span class="input-group-text">公里</span>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="deliveryFee" class="form-label">配送费用</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="number" class="form-control" id="deliveryFee" value="5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="fixedPickup" checked>
+                            <label class="form-check-label" for="fixedPickup">
+                                固定地点取餐
+                            </label>
+                        </div>
+                        <div class="delivery-options" id="fixedPickupOptions">
+                            <div class="mb-3">
+                                <label for="pickupLocation" class="form-label">取餐地点</label>
+                                <input type="text" class="form-control" id="pickupLocation" value="XX学校门口">
+                            </div>
+                            <div class="mb-3">
+                                <label for="pickupTime" class="form-label">固定取餐时间</label>
+                                <div class="time-range">
+                                    <input type="time" value="14:30" class="form-control">
+                                    <span>至</span>
+                                    <input type="time" value="15:00" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary w-100 mt-4">保存设置</button>
+            </div>
+        </section>
+
+        <!-- 厨房信息页面 -->
+        <section id="kitchen-page" class="page">
+            <div class="header">
+                <h2>厨房信息</h2>
+            </div>
+            <div class="kitchen-container">
+                <form id="kitchen-form" novalidate>
+                    <div class="required-fields-legend mb-3">
+                        <span class="text-danger">*</span> 表示必填字段
+                    </div>
+                    <div class="photo-upload">
+                        <h3>厨房照片 <span class="text-danger">*</span></h3>
+                        <div class="photo-grid">
+                            <div class="photo-item add-photo">
+                                <i class="bi bi-plus-lg"></i>
+                                <span>添加照片</span>
+                            </div>
+                        </div>
+                        <p class="photo-hint">建议上传3-5张厨房实景照片</p>
+                        <div class="invalid-feedback">请至少上传一张厨房照片</div>
+                    </div>
+
+                    <div class="kitchen-info">
+                        <h3>个人简介 <span class="text-danger">*</span></h3>
+                        <textarea class="form-control" id="kitchen-intro" rows="4" placeholder="请填写您的个人简介与厨艺故事..." required></textarea>
+                        <div class="invalid-feedback">请填写个人简介</div>
+                    </div>
+
+                    <div class="contact-info">
+                        <h3>联系方式</h3>
+                        <div class="contact-item">
+                            <label>微信二维码 <span class="text-danger">*</span></label>
+                            <div class="qr-code">
+                                <img src="placeholder-qr.png" alt="微信二维码" id="wechat-qr">
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="upload-qr-btn">更换二维码</button>
+                            </div>
+                            <div class="invalid-feedback">请上传微信二维码</div>
+                        </div>
+                        <div class="contact-item">
+                            <label>电话号码 <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="tel" class="form-control" id="kitchen-phone" required>
+                                <button type="button" class="btn btn-outline-primary">修改</button>
+                            </div>
+                            <div class="invalid-feedback">请输入电话号码</div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mt-4">保存信息</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 消费者评价页面 -->
+        <section id="reviews-page" class="page">
+            <div class="header">
+                <h2>消费者评价</h2>
+            </div>
+            <div class="reviews-container">
+                <div class="reviews-summary">
+                    <div class="rating">
+                        <div class="rating-score">0.0</div>
+                        <div class="rating-stars">
+                            <i class="bi bi-star"></i>
+                            <i class="bi bi-star"></i>
+                            <i class="bi bi-star"></i>
+                            <i class="bi bi-star"></i>
+                            <i class="bi bi-star"></i>
+                        </div>
+                        <div class="rating-count">共 0 条评价</div>
+                    </div>
+                    <div class="rating-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">好评率</span>
+                            <span class="stat-value">0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">收藏数</span>
+                            <span class="stat-value">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviews-filter">
+                    <select class="form-select">
+                        <option selected>全部菜品</option>
+                    </select>
+                </div>
+
+                <div class="reviews-list">
+                    <!-- Reviews will be dynamically loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 我的资料页面 -->
+        <section id="profile-page" class="page">
+            <div class="header">
+                <h2>我的资料</h2>
+            </div>
+            <div class="profile-container">
+                <form id="profile-form" novalidate>
+                    <div class="required-fields-legend mb-3">
+                        <span class="text-danger">*</span> 表示必填字段
+                    </div>
+                    <div class="profile-avatar">
+                        <img src="placeholder-avatar.png" alt="头像" id="profile-avatar-img">
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="change-avatar-btn">更换头像</button>
+                    </div>
+
+                    <div class="profile-form">
+                        <div class="form-group">
+                            <label for="nickname">昵称 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nickname" required>
+                            <div class="invalid-feedback">请输入昵称</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">家庭地址 <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="address" required>
+                                <button type="button" class="btn btn-outline-primary">定位</button>
+                            </div>
+                            <small class="form-text text-muted">用于距离排序，不会公开详细地址</small>
+                            <div class="invalid-feedback">请输入家庭地址</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="wechat">微信号 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="wechat" required>
+                            <div class="invalid-feedback">请输入微信号</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">电话号码 <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="phone" required>
+                            <div class="invalid-feedback">请输入电话号码</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>身份证上传（选填）</label>
+                            <div class="id-upload">
+                                <div class="id-front">
+                                    <img src="placeholder-id-front.png" alt="身份证正面" id="id-front-img">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="upload-id-front-btn">上传正面</button>
+                                </div>
+                                <div class="id-back">
+                                    <img src="placeholder-id-back.png" alt="身份证背面" id="id-back-img">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="upload-id-back-btn">上传背面</button>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">上传身份证可提升信任度，信息不会公开</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mt-4">保存资料</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- 设置页面 -->
+        <section id="settings-page" class="page">
+            <div class="header">
+                <h2>设置</h2>
+            </div>
+            <div class="settings-container">
+                <div id="settings-content">
+                    <!-- Settings content will be dynamically loaded here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 添加/编辑菜品模态框 -->
+    <div class="modal fade" id="dish-modal" tabindex="-1" aria-labelledby="dish-modal-title" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dish-modal-title">添加菜品</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="dish-form" novalidate>
+                        <div class="required-fields-legend mb-3">
+                            <span class="text-danger">*</span> 表示必填字段
+                        </div>
+                        <div class="mb-3">
+                            <label for="dish-name" class="form-label">菜品名称 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="dish-name" name="name" required>
+                            <div class="invalid-feedback">请输入菜品名称</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dish-price" class="form-label">价格 <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">¥</span>
+                                <input type="number" class="form-control" id="dish-price" name="price" min="0" step="1" required>
+                            </div>
+                            <div class="invalid-feedback">请输入有效的价格</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">菜品图片 <span class="text-danger">*</span></label>
+                            <div class="image-upload-container" id="dish-images-upload">
+                                <i class="bi bi-cloud-upload"></i>
+                                <p>点击或拖拽图片到此处上传</p>
+                                <input type="file" id="dish-images-input" accept="image/*" multiple style="display: none;">
+                            </div>
+                            <div class="dish-images-preview" id="dish-images-preview"></div>
+                            <div class="invalid-feedback">请至少上传一张菜品图片</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dish-description" class="form-label">菜品描述 <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="dish-description" name="description" rows="3" required></textarea>
+                            <div class="invalid-feedback">请输入菜品描述</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">取餐时间 <span class="text-danger">*</span></label>
+                            <div class="time-buttons">
+                                <button type="button" class="btn btn-outline-primary time-btn" data-time="lunch">午餐 (11:30-13:00)</button>
+                                <button type="button" class="btn btn-outline-primary time-btn" data-time="dinner">晚餐 (17:30-19:00)</button>
+                                <button type="button" class="btn btn-outline-primary time-btn" data-time="custom">自定义时间</button>
+                            </div>
+                            <div class="custom-time-input mt-2" style="display: none;">
+                                <div class="input-group">
+                                    <input type="time" class="form-control" id="custom-start-time">
+                                    <span class="input-group-text">至</span>
+                                    <input type="time" class="form-control" id="custom-end-time">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="same-day-pickup" name="sameDayPickup" checked>
+                                <label class="form-check-label" for="same-day-pickup">
+                                    允许当日取餐
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="dish-status" name="status" checked>
+                                <label class="form-check-label" for="dish-status">
+                                    立即上架
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save-dish-btn">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</body>
+</html> 

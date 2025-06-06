@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f5f5f5; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        .login-box { background: #fff; padding: 32px 24px; border-radius: 16px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); width: 100%; max-width: 340px; text-align: center; }
+        .login-box h2 { margin-bottom: 24px; color: #333; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 16px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
+        .login-box input:focus { outline: none; border-color: #ff6b6b; }
+        .login-box button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: #ff6b6b; color: #fff; font-size: 16px; cursor: pointer; transition: background 0.3s; }
+        .login-box button:hover { background: #e55a5a; }
+        .platform-btn { margin-bottom: 12px !important; }
+        .platform-btn.cook { background: #ffa726 !important; }
+        .platform-btn.cook:hover { background: #ff9800 !important; }
+        .platform-btn.create { background: #90caf9 !important; }
+        .platform-btn.create:hover { background: #64b5f6 !important; }
+        .back-btn { background: #eee !important; color: #666 !important; margin-top: 12px; }
+        .back-btn:hover { background: #ddd !important; }
+        .lang-switch { margin-top: 18px; }
+        .lang-switch select { padding: 8px; border-radius: 6px; border: 1px solid #ddd; background: white; }
+        .platform-selection { margin-bottom: 16px; }
+        .platform-selection label { display: block; margin-bottom: 8px; text-align: left; cursor: pointer; }
+        .platform-selection input[type="radio"] { margin-right: 8px; }
+        .error-message { color: #e53e3e; font-size: 14px; margin-bottom: 16px; }
+        .success-message { color: #38a169; font-size: 14px; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div id="platformSelect">
+            <h2>选择平台 / Choose Platform</h2>
+            <button id="chooseConsumerBtn" class="platform-btn">登录消费者平台</button>
+            <button id="chooseCookBtn" class="platform-btn cook">登录厨师平台</button>
+            <button id="createAccountBtn" class="platform-btn create">创建新账号</button>
+        </div>
+        
+        <form id="loginForm" style="display:none;">
+            <h2 id="loginTitle">登录</h2>
+            <div id="loginMessage" class="error-message" style="display:none;"></div>
+            <input id="loginUser" type="text" placeholder="用户名" required>
+            <input id="loginPass" type="password" placeholder="密码" required>
+            <button id="loginBtn" type="button">登录</button>
+            <button id="backToSelectBtn" class="back-btn" type="button">返回选择</button>
+        </form>
+        
+        <form id="registerForm" style="display:none;">
+            <h2 id="registerTitle">注册新账号</h2>
+            <div id="registerMessage" class="error-message" style="display:none;"></div>
+            <div class="platform-selection">
+                <label><input type="radio" name="registerPlatform" value="consumer" checked> <span id="consumerOption">消费者平台</span></label>
+                <label><input type="radio" name="registerPlatform" value="cook"> <span id="cookOption">厨师平台</span></label>
+            </div>
+            <input id="registerUser" type="text" placeholder="用户名" required>
+            <input id="registerPass" type="password" placeholder="密码" required>
+            <input id="registerPass2" type="password" placeholder="确认密码" required>
+            <button id="registerBtn" type="button">注册</button>
+            <button id="cancelRegisterBtn" class="back-btn" type="button">返回</button>
+        </form>
+        
+        <div class="lang-switch">
+            <label for="loginLang">语言/Language: </label>
+            <select id="loginLang">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+    </div>
+    
+    <script>
+    const loginLangMap = {
+        zh: {
+            chooseConsumerBtn: '登录消费者平台', 
+            chooseCookBtn: '登录厨师平台', 
+            createAccountBtn: '创建新账号', 
+            loginTitleConsumer: '登录消费者平台', 
+            loginTitleCook: '登录厨师平台', 
+            loginUser: '用户名', 
+            loginPass: '密码', 
+            loginBtn: '登录', 
+            loginSuccess: '登录成功！', 
+            registerTitle: '注册新账号', 
+            registerUser: '用户名', 
+            registerPass: '密码', 
+            registerPass2: '确认密码', 
+            registerBtn: '注册', 
+            cancelRegisterBtn: '返回', 
+            backToSelectBtn: '返回选择',
+            registerSuccess: '注册成功！正在跳转到账号设置...', 
+            registerError: '请填写所有字段且两次密码一致。',
+            loginError: '请填写用户名和密码。',
+            userNotFound: '用户名或密码错误。',
+            userExists: '用户名已存在，请选择其他用户名。',
+            consumerOption: '消费者平台',
+            cookOption: '厨师平台',
+            selectPlatform: '选择平台'
+        },
+        en: {
+            chooseConsumerBtn: 'Login to Consumer Platform', 
+            chooseCookBtn: 'Login to Cook Platform', 
+            createAccountBtn: 'Create New Account', 
+            loginTitleConsumer: 'Login to Consumer Platform', 
+            loginTitleCook: 'Login to Cook Platform', 
+            loginUser: 'Username', 
+            loginPass: 'Password', 
+            loginBtn: 'Login', 
+            loginSuccess: 'Login successful!', 
+            registerTitle: 'Create New Account', 
+            registerUser: 'Username', 
+            registerPass: 'Password', 
+            registerPass2: 'Confirm Password', 
+            registerBtn: 'Register', 
+            cancelRegisterBtn: 'Back', 
+            backToSelectBtn: 'Back to Selection',
+            registerSuccess: 'Registration successful! Redirecting to account setup...', 
+            registerError: 'Please fill all fields and make sure passwords match.',
+            loginError: 'Please fill in username and password.',
+            userNotFound: 'Incorrect username or password.',
+            userExists: 'Username already exists. Please choose another.',
+            consumerOption: 'Consumer Platform',
+            cookOption: 'Cook Platform',
+            selectPlatform: 'Choose Platform'
+        }
+    };
+    
+    let chosenPlatform = null;
+    
+    // Initialize users array if not exists
+    if (!localStorage.getItem('users')) {
+        localStorage.setItem('users', '[]');
+    }
+    
+    function showMessage(elementId, message, isError = true) {
+        const element = document.getElementById(elementId);
+        element.textContent = message;
+        element.className = isError ? 'error-message' : 'success-message';
+        element.style.display = 'block';
+        setTimeout(() => {
+            element.style.display = 'none';
+        }, 5000);
+    }
+    
+    function updateLangUI() {
+        const lang = document.getElementById('loginLang').value;
+        const langData = loginLangMap[lang];
+        
+        document.getElementById('chooseConsumerBtn').textContent = langData.chooseConsumerBtn;
+        document.getElementById('chooseCookBtn').textContent = langData.chooseCookBtn;
+        document.getElementById('createAccountBtn').textContent = langData.createAccountBtn;
+        document.getElementById('consumerOption').textContent = langData.consumerOption;
+        document.getElementById('cookOption').textContent = langData.cookOption;
+        
+        if (chosenPlatform === 'consumer') {
+            document.getElementById('loginTitle').textContent = langData.loginTitleConsumer;
+        } else if (chosenPlatform === 'cook') {
+            document.getElementById('loginTitle').textContent = langData.loginTitleCook;
+        }
+        
+        document.getElementById('loginUser').placeholder = langData.loginUser;
+        document.getElementById('loginPass').placeholder = langData.loginPass;
+        document.getElementById('loginBtn').textContent = langData.loginBtn;
+        document.getElementById('backToSelectBtn').textContent = langData.backToSelectBtn;
+        document.getElementById('registerTitle').textContent = langData.registerTitle;
+        document.getElementById('registerUser').placeholder = langData.registerUser;
+        document.getElementById('registerPass').placeholder = langData.registerPass;
+        document.getElementById('registerPass2').placeholder = langData.registerPass2;
+        document.getElementById('registerBtn').textContent = langData.registerBtn;
+        document.getElementById('cancelRegisterBtn').textContent = langData.cancelRegisterBtn;
+    }
+    
+    // Event listeners
+    document.getElementById('loginLang').onchange = updateLangUI;
+    
+    document.getElementById('chooseConsumerBtn').onclick = function() {
+        chosenPlatform = 'consumer';
+        document.getElementById('platformSelect').style.display = 'none';
+        document.getElementById('loginForm').style.display = '';
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('loginMessage').style.display = 'none';
+        updateLangUI();
+    };
+    
+    document.getElementById('chooseCookBtn').onclick = function() {
+        chosenPlatform = 'cook';
+        document.getElementById('platformSelect').style.display = 'none';
+        document.getElementById('loginForm').style.display = '';
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('loginMessage').style.display = 'none';
+        updateLangUI();
+    };
+    
+    document.getElementById('createAccountBtn').onclick = function() {
+        document.getElementById('platformSelect').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = '';
+        document.getElementById('registerMessage').style.display = 'none';
+        updateLangUI();
+    };
+    
+    document.getElementById('backToSelectBtn').onclick = function() {
+        document.getElementById('loginForm').reset();
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('platformSelect').style.display = '';
+        document.getElementById('loginMessage').style.display = 'none';
+        chosenPlatform = null;
+    };
+    
+    document.getElementById('cancelRegisterBtn').onclick = function() {
+        document.getElementById('registerForm').reset();
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('platformSelect').style.display = '';
+        document.getElementById('registerMessage').style.display = 'none';
+        // Reset platform selection to consumer
+        document.querySelector('input[name="registerPlatform"][value="consumer"]').checked = true;
+    };
+    
+    document.getElementById('loginBtn').onclick = function() {
+        const lang = document.getElementById('loginLang').value;
+        const langData = loginLangMap[lang];
+        const username = document.getElementById('loginUser').value.trim();
+        const password = document.getElementById('loginPass').value;
+        
+        if (!username || !password) {
+            showMessage('loginMessage', langData.loginError);
+            return;
+        }
+        
+        let users = JSON.parse(localStorage.getItem('users') || '[]');
+        const user = users.find(u => u.username === username && u.password === password && u.platform === chosenPlatform);
+        
+        if (!user) {
+            showMessage('loginMessage', langData.userNotFound);
+            return;
+        }
+        
+        // Save current user info for the app
+        localStorage.setItem(chosenPlatform + 'User', JSON.stringify(user));
+        showMessage('loginMessage', langData.loginSuccess, false);
+        
+        setTimeout(() => {
+            if (chosenPlatform === 'consumer') {
+                window.location.href = 'consumer-app.html';
+            } else if (chosenPlatform === 'cook') {
+                window.location.href = 'cook-app.html';
+            }
+        }, 1000);
+    };
+    
+    document.getElementById('registerBtn').onclick = function() {
+        const lang = document.getElementById('loginLang').value;
+        const langData = loginLangMap[lang];
+        const username = document.getElementById('registerUser').value.trim();
+        const password = document.getElementById('registerPass').value;
+        const password2 = document.getElementById('registerPass2').value;
+        const platform = document.querySelector('input[name="registerPlatform"]:checked').value;
+        
+        if (!username || !password || !password2 || password.trim() !== password2.trim()) {
+            showMessage('registerMessage', langData.registerError);
+            return;
+        }
+        
+        // Check for duplicate usernames on the same platform
+        let users = JSON.parse(localStorage.getItem('users') || '[]');
+        if (users.some(u => u.username === username && u.platform === platform)) {
+            showMessage('registerMessage', langData.userExists);
+            return;
+        }
+        
+        // Store new user
+        const newUser = {
+            username: username,
+            password: password.trim(),
+            platform: platform,
+            displayName: '',
+            avatar: '',
+            createdAt: new Date().toISOString()
+        };
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        // Store info for account setup
+        sessionStorage.setItem('newAccountPassword', password.trim());
+        sessionStorage.setItem('newAccountUsername', username);
+        sessionStorage.setItem('newAccountPlatform', platform);
+        
+        showMessage('registerMessage', langData.registerSuccess, false);
+        
+        setTimeout(() => {
+            window.location.href = 'account-setup.html?platform=' + encodeURIComponent(platform);
+        }, 1500);
+    };
+    
+    // Add Enter key support for forms
+    document.getElementById('loginUser').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') document.getElementById('loginBtn').click();
+    });
+    document.getElementById('loginPass').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') document.getElementById('loginBtn').click();
+    });
+    document.getElementById('registerPass2').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') document.getElementById('registerBtn').click();
+    });
+    
+    // Initialize UI
+    updateLangUI();
+    </script>
+</body>
+</html> 

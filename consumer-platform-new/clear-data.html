@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清除数据</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 12px 24px;
+            margin: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .clear-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+        .back-btn {
+            background: #eee;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h2>清除应用数据</h2>
+    <p>点击下面的按钮清除所有保存的数据</p>
+    
+    <button class="clear-btn" onclick="clearAllData()">清除所有数据</button>
+    <button class="clear-btn" onclick="clearDishes()">只清除菜品数据</button>
+    <br>
+    <button class="back-btn" onclick="goBack()">返回应用</button>
+    
+    <div id="status" style="margin-top: 20px; color: green;"></div>
+    
+    <script>
+        function clearAllData() {
+            localStorage.clear();
+            document.getElementById('status').textContent = '所有数据已清除！';
+        }
+        
+        function clearDishes() {
+            localStorage.removeItem('dishes');
+            document.getElementById('status').textContent = '菜品数据已清除！';
+        }
+        
+        function goBack() {
+            window.location.href = 'consumer-app.html';
+        }
+    </script>
+</body>
+</html> 

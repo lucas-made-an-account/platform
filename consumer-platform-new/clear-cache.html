@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清除缓存</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .clear-btn { background: #dc3545; color: white; }
+        .info-btn { background: #007bff; color: white; }
+        .go-btn { background: #28a745; color: white; }
+        .storage-info {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>缓存清理工具</h1>
+    
+    <button class="info-btn" onclick="showStorageInfo()">显示当前缓存信息</button>
+    <button class="clear-btn" onclick="clearAllStorage()">清除所有缓存</button>
+    <button class="go-btn" onclick="goToLogin()">前往登录页面</button>
+    
+    <div id="storage-info" class="storage-info" style="display: none;"></div>
+    
+    <script>
+        function showStorageInfo() {
+            const info = document.getElementById('storage-info');
+            let content = '当前localStorage内容:\n\n';
+            
+            if (localStorage.length === 0) {
+                content += '(空)';
+            } else {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    const value = localStorage.getItem(key);
+                    content += `${key}: ${value}\n\n`;
+                }
+            }
+            
+            info.textContent = content;
+            info.style.display = 'block';
+        }
+        
+        function clearAllStorage() {
+            if (confirm('确定要清除所有缓存数据吗？这将删除所有用户数据。')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                alert('缓存已清除！');
+                showStorageInfo();
+            }
+        }
+        
+        function goToLogin() {
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html> 

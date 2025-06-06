@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美食平台 - 消费者</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Consumer App Specific Styles */
+        .header {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .search-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .search-container i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+        
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 4px;
+        }
+        
+        .filter-btn {
+            padding: 0.75rem;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Filter Drawer */
+        .filter-drawer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 1001;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .filter-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+        
+        .close-filter {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 4px;
+            color: #666;
+        }
+        
+        .filter-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-section h4 {
+            margin-bottom: 0.75rem;
+            color: #333;
+            font-size: 1rem;
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .filter-options label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .tag {
+            padding: 0.5rem 1rem;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .tag:hover, .tag.active {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .filter-actions {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 1rem 0;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .cancel-filter, .apply-filter {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        
+        .cancel-filter {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .apply-filter {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        /* Dish Grid */
+        .dish-grid {
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+        
+        .dish-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Dish Status Badge */
+        .dish-status {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            z-index: 2;
+        }
+        
+        .dish-status.available {
+            background: #52c41a;
+            color: white;
+        }
+        
+        .dish-status.unavailable {
+            background: #ff4d4f;
+            color: white;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 80px;
+            right: 1rem;
+            width: 44px;
+            height: 44px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: none;
+        }
+        
+        .back-to-top.visible {
+            display: block;
+        }
+        
+        /* Responsive adjustments */
+        @media (min-width: 480px) {
+            .dish-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .dish-grid {
+                grid-template-columns: repeat(3, 1fr);
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Search and Filter -->
+    <header class="header">
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="搜索菜品或厨师..." class="search-input">
+            <button class="search-btn" aria-label="search"><i class="fas fa-search"></i></button>
+        </div>
+        <button class="filter-btn">
+            <i class="fas fa-filter"></i>
+        </button>
+    </header>
+
+    <!-- Filter Drawer (Hidden by default) -->
+    <div class="filter-drawer" id="filterDrawer" style="display: none;">
+        <div class="filter-header">
+            <h3>筛选选项</h3>
+            <button class="close-filter">&times;</button>
+        </div>
+        <div class="filter-content">
+            <div class="filter-section">
+                <h4>可用时间</h4>
+                <div class="filter-options">
+                    <label><input type="radio" name="time" value="today"> 今天</label>
+                    <label><input type="radio" name="time" value="tomorrow"> 明天及以后</label>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>配送方式</h4>
+                <div class="filter-options">
+                    <label><input type="checkbox" name="delivery" value="home"> 配送</label>
+                    <label><input type="checkbox" name="delivery" value="pickup"> 自取</label>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>价格区间</h4>
+                <div class="filter-options">
+                    <label><input type="radio" name="price" value="0-10"> ¥0 - ¥10</label>
+                    <label><input type="radio" name="price" value="10-20"> ¥10 - ¥20</label>
+                    <label><input type="radio" name="price" value="20+"> ¥20+</label>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>菜系类型</h4>
+                <div class="filter-tags">
+                    <span class="tag">川菜</span>
+                    <span class="tag">粤菜</span>
+                    <span class="tag">湘菜</span>
+                    <span class="tag">鲁菜</span>
+                    <span class="tag">闽菜</span>
+                    <span class="tag">浙菜</span>
+                    <span class="tag">苏菜</span>
+                    <span class="tag">徽菜</span>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>厨师标签</h4>
+                <div class="filter-tags">
+                    <span class="tag">#热门</span>
+                    <span class="tag">#新上架</span>
+                    <span class="tag">#高评分</span>
+                    <span class="tag">#附近</span>
+                    <span class="tag">#已认证</span>
+                    <span class="tag">#专业</span>
+                    <span class="tag">#家庭厨师</span>
+                    <span class="tag">#特色</span>
+                </div>
+            </div>
+        </div>
+        <div class="filter-actions">
+            <button class="cancel-filter">取消</button>
+            <button class="apply-filter">应用</button>
+        </div>
+    </div>
+
+    <!-- Main Content - Dish Grid -->
+    <main class="dish-grid" id="homePage">
+        <!-- Dish cards will be dynamically loaded here -->
+    </main>
+    <!-- Settings Page (hidden by default) -->
+    <section id="settingsPage" style="display:none; padding: 24px 16px 80px 16px;">
+        <h2 id="settingsTitle" style="margin-bottom: 24px;">设置</h2>
+        <div id="userProfileBox" style="text-align:center;margin-bottom:20px;">
+            <img id="settingsAvatar" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="avatar" style="width:64px;height:64px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 8px auto;">
+            <input id="settingsAvatarInput" type="file" accept="image/*" style="display:block;margin:0 auto 8px auto;">
+            <div style="font-weight:600;font-size:18px;" id="settingsDisplayName">昵称</div>
+            <input id="settingsDisplayNameInput" type="text" style="width:100%;padding:6px;margin-top:6px;border-radius:6px;border:1px solid #ccc;" placeholder="昵称">
+            <button type="button" id="saveProfileBtn" style="margin-top:8px;padding:6px 16px;border:none;border-radius:6px;background:#ff6b6b;color:#fff;cursor:pointer;">保存资料</button>
+            <span id="profileSaved" style="color:green;display:none;margin-left:10px;">已保存！</span>
+        </div>
+        <form id="settingsForm" autocomplete="off">
+            <div style="margin-bottom:20px;">
+                <label for="languageSelect" style="font-weight:600;"><i class="fas fa-language"></i> <span id="langLabel">语言</span></label><br>
+                <select id="languageSelect" style="width:100%;padding:8px;margin-top:6px;border-radius:6px;border:1px solid #ccc;">
+                    <option value="zh">中文</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="font-weight:600;"><i class="fas fa-bell"></i> <span id="notifLabel">通知</span></label><br>
+                <label style="display:inline-flex;align-items:center;margin-top:6px;">
+                    <input type="checkbox" id="notifToggle" checked style="width:20px;height:20px;margin-right:8px;">
+                    <span id="notifToggleLabel">启用通知</span>
+                </label>
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="font-weight:600;"><i class="fas fa-shield-alt"></i> <span id="privacyLabel">隐私</span></label><br>
+                <label style="display:inline-flex;align-items:center;margin-top:6px;">
+                    <input type="checkbox" id="privacyToggle" style="width:20px;height:20px;margin-right:8px;">
+                    <span id="privacyToggleLabel">账号设为私密</span>
+                </label>
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="font-weight:600;"><i class="fas fa-key"></i> 更改密码</label><br>
+                <input type="password" id="oldPassword" placeholder="旧密码" style="width:100%;padding:6px;margin-top:6px;border-radius:6px;border:1px solid #ccc;">
+                <input type="password" id="newPassword" placeholder="新密码" style="width:100%;padding:6px;margin-top:6px;border-radius:6px;border:1px solid #ccc;">
+                <input type="password" id="confirmNewPassword" placeholder="确认新密码" style="width:100%;padding:6px;margin-top:6px;border-radius:6px;border:1px solid #ccc;">
+                <button type="button" id="changePasswordBtn" style="margin-top:8px;padding:6px 16px;border:none;border-radius:6px;background:#ffa726;color:#fff;cursor:pointer;">更改密码</button>
+                <span id="passwordSaved" style="color:green;display:none;margin-left:10px;">密码已更改！</span>
+            </div>
+            <div style="margin-bottom:20px;">
+                <button type="button" id="logoutBtn" style="padding:8px 20px;border:none;border-radius:6px;background:#eee;color:#ff6b6b;font-weight:600;cursor:pointer;"><i class="fas fa-sign-out-alt"></i> <span id="logoutLabel">退出登录</span></button>
+            </div>
+        </form>
+    </section>
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+    <script>
+    // Initialize local database if not present
+    function initLocalDB() {
+        if (!localStorage.getItem('users')) localStorage.setItem('users', '[]');
+        if (!localStorage.getItem('dishes')) localStorage.setItem('dishes', '[]');
+        if (!localStorage.getItem('orders')) localStorage.setItem('orders', '[]');
+        if (!localStorage.getItem('reviews')) localStorage.setItem('reviews', '[]');
+    }
+    initLocalDB();
+    
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter drawer functionality
+        const filterBtn = document.querySelector('.filter-btn');
+        const filterDrawer = document.getElementById('filterDrawer');
+        const closeFilter = document.querySelector('.close-filter');
+        const cancelFilter = document.querySelector('.cancel-filter');
+        const applyFilter = document.querySelector('.apply-filter');
+        
+        if (filterBtn && filterDrawer) {
+            filterBtn.addEventListener('click', () => {
+                filterDrawer.style.display = 'block';
+            });
+        }
+        
+        if (closeFilter && filterDrawer) {
+            closeFilter.addEventListener('click', () => {
+                filterDrawer.style.display = 'none';
+            });
+        }
+        
+        if (cancelFilter && filterDrawer) {
+            cancelFilter.addEventListener('click', () => {
+                filterDrawer.style.display = 'none';
+            });
+        }
+        
+        if (applyFilter && filterDrawer) {
+            applyFilter.addEventListener('click', () => {
+                // Apply filter logic here
+                filterDrawer.style.display = 'none';
+                alert('筛选条件已应用');
+            });
+        }
+        
+        // Tab switching logic
+        const navHome = document.getElementById('navHome');
+        const navMy = document.getElementById('navMy');
+        const homePage = document.getElementById('homePage');
+        const settingsPage = document.getElementById('settingsPage');
+        
+        if (navHome && navMy && homePage && settingsPage) {
+            navHome.addEventListener('click', () => {
+                navHome.classList.add('active');
+                navMy.classList.remove('active');
+                homePage.style.display = '';
+                settingsPage.style.display = 'none';
+            });
+            navMy.addEventListener('click', () => {
+                navMy.classList.add('active');
+                navHome.classList.remove('active');
+                homePage.style.display = 'none';
+                settingsPage.style.display = '';
+                loadConsumerUser(); // Load user info when opening settings
+            });
+        }
+
+        // Settings interactivity
+        const saveUsernameBtn = document.getElementById('saveUsername');
+        if (saveUsernameBtn) {
+            saveUsernameBtn.onclick = function() {
+                const savedIndicator = document.getElementById('usernameSaved');
+                if (savedIndicator) {
+                    savedIndicator.style.display = 'inline';
+                    setTimeout(() => {
+                        savedIndicator.style.display = 'none';
+                    }, 1500);
+                }
+            };
+        }
+        
+        const notifToggle = document.getElementById('notifToggle');
+        if (notifToggle) {
+            notifToggle.onchange = function(e) {
+                alert(e.target.checked ? (currentLang==='zh'?'通知已启用':'Notifications enabled') : (currentLang==='zh'?'通知已关闭':'Notifications disabled'));
+            };
+        }
+        
+        const privacyToggle = document.getElementById('privacyToggle');
+        if (privacyToggle) {
+            privacyToggle.onchange = function(e) {
+                alert(e.target.checked ? (currentLang==='zh'?'账号已设为私密':'Account set to private') : (currentLang==='zh'?'账号已设为公开':'Account set to public'));
+            };
+        }
+
+        // Logout
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.onclick = function() {
+                localStorage.removeItem('consumerUser');
+                localStorage.removeItem('cookUser');
+                alert('已退出登录');
+                window.location.href = 'login.html';
+            };
+        }
+        
+        // Save Profile (username/nickname)
+        const saveProfileBtn = document.getElementById('saveProfileBtn');
+        if (saveProfileBtn) {
+            saveProfileBtn.onclick = function() {
+                const user = JSON.parse(localStorage.getItem('consumerUser') || '{}');
+                const displayNameInput = document.getElementById('settingsDisplayNameInput');
+                const settingsAvatar = document.getElementById('settingsAvatar');
+                const settingsDisplayName = document.getElementById('settingsDisplayName');
+                const profileSaved = document.getElementById('profileSaved');
+                
+                if (displayNameInput && settingsAvatar && settingsDisplayName) {
+                    user.displayName = displayNameInput.value.trim();
+                    user.avatar = settingsAvatar.src;
+                    localStorage.setItem('consumerUser', JSON.stringify(user));
+                    
+                    // Update users array as well
+                    let users = JSON.parse(localStorage.getItem('users') || '[]');
+                    const userIndex = users.findIndex(u => u.username === user.username && u.platform === 'consumer');
+                    if (userIndex !== -1) {
+                        users[userIndex].displayName = user.displayName;
+                        users[userIndex].avatar = user.avatar;
+                        localStorage.setItem('users', JSON.stringify(users));
+                    }
+                    
+                    settingsDisplayName.textContent = user.displayName;
+                    if (profileSaved) {
+                        profileSaved.style.display = 'inline';
+                        setTimeout(() => { profileSaved.style.display = 'none'; }, 1500);
+                    }
+                }
+            };
+        }
+        
+        // Change Password
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        if (changePasswordBtn) {
+            changePasswordBtn.onclick = function() {
+                const user = JSON.parse(localStorage.getItem('consumerUser') || '{}');
+                const oldPasswordInput = document.getElementById('oldPassword');
+                const newPasswordInput = document.getElementById('newPassword');
+                const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
+                const passwordSaved = document.getElementById('passwordSaved');
+                
+                if (oldPasswordInput && newPasswordInput && confirmNewPasswordInput) {
+                    const oldPass = oldPasswordInput.value;
+                    const newPass = newPasswordInput.value;
+                    const confirmNew = confirmNewPasswordInput.value;
+                    
+                    if (!oldPass || !newPass || !confirmNew) {
+                        alert('请填写所有密码字段');
+                        return;
+                    }
+                    if (oldPass !== user.password) {
+                        alert('旧密码不正确');
+                        return;
+                    }
+                    if (newPass !== confirmNew) {
+                        alert('新密码两次输入不一致');
+                        return;
+                    }
+                    
+                    user.password = newPass;
+                    localStorage.setItem('consumerUser', JSON.stringify(user));
+                    
+                    // Update users array as well
+                    let users = JSON.parse(localStorage.getItem('users') || '[]');
+                    const userIndex = users.findIndex(u => u.username === user.username && u.platform === 'consumer');
+                    if (userIndex !== -1) {
+                        users[userIndex].password = newPass;
+                        localStorage.setItem('users', JSON.stringify(users));
+                    }
+                    
+                    if (passwordSaved) {
+                        passwordSaved.style.display = 'inline';
+                        setTimeout(() => { passwordSaved.style.display = 'none'; }, 1500);
+                    }
+                    
+                    oldPasswordInput.value = '';
+                    newPasswordInput.value = '';
+                    confirmNewPasswordInput.value = '';
+                }
+            };
+        }
+
+        // Avatar upload
+        const settingsAvatarInput = document.getElementById('settingsAvatarInput');
+        if (settingsAvatarInput) {
+            settingsAvatarInput.onchange = function(e) {
+                const file = e.target.files[0];
+                const settingsAvatar = document.getElementById('settingsAvatar');
+                if (file && settingsAvatar) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        settingsAvatar.src = evt.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+        }
+
+        // Language switching
+        const languageSelect = document.getElementById('languageSelect');
+        if (languageSelect) {
+            languageSelect.onchange = function(e) {
+                currentLang = e.target.value;
+                updateLanguageUI();
+            };
+        }
+
+        // Initialize user profile
+        loadConsumerUser();
+        
+        // Load dishes on page load
+        loadDishes();
+    });
+
+    // Language switching
+    const langMap = {
+        zh: {
+            navHome: '主页', navMy: '我的', settingsTitle: '设置', langLabel: '语言', usernameLabel: '用户名', saveBtnLabel: '保存', usernameSaved: '已保存！', notifLabel: '通知', notifToggleLabel: '启用通知', privacyLabel: '隐私', privacyToggleLabel: '账号设为私密', logoutLabel: '退出登录',
+        },
+        en: {
+            navHome: 'Home', navMy: 'My', settingsTitle: 'Settings', langLabel: 'Language', usernameLabel: 'Username', saveBtnLabel: 'Save', usernameSaved: 'Saved!', notifLabel: 'Notifications', notifToggleLabel: 'Enable notifications', privacyLabel: 'Privacy', privacyToggleLabel: 'Set account private', logoutLabel: 'Log out',
+        }
+    };
+    let currentLang = 'zh';
+    
+    function updateLanguageUI() {
+        for (const key in langMap[currentLang]) {
+            const el = document.getElementById(key);
+            if (el) el.textContent = langMap[currentLang][key];
+        }
+        const usernameSaved = document.getElementById('usernameSaved');
+        if (usernameSaved) {
+            usernameSaved.textContent = langMap[currentLang].usernameSaved;
+        }
+    }
+
+    // User profile logic
+    function loadConsumerUser() {
+        const user = JSON.parse(localStorage.getItem('consumerUser') || '{}');
+        const settingsDisplayName = document.getElementById('settingsDisplayName');
+        const settingsDisplayNameInput = document.getElementById('settingsDisplayNameInput');
+        const settingsAvatar = document.getElementById('settingsAvatar');
+        
+        if (user.displayName && settingsDisplayName && settingsDisplayNameInput) {
+            settingsDisplayName.textContent = user.displayName;
+            settingsDisplayNameInput.value = user.displayName;
+        }
+        if (user.avatar && settingsAvatar) {
+            settingsAvatar.src = user.avatar;
+        }
+    }
+
+    // Function to load and display dishes
+    function loadDishes() {
+        const dishes = JSON.parse(localStorage.getItem('dishes') || '[]');
+        const dishGrid = document.getElementById('homePage');
+        
+        // Clear existing content
+        dishGrid.innerHTML = '';
+        
+        if (dishes.length === 0) {
+            // Add empty message
+            const emptyMessage = document.createElement('div');
+            emptyMessage.className = 'empty-state';
+            emptyMessage.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px; color: #666;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">🍽️</div>
+                    <h3 style="margin-bottom: 8px; color: #333;">暂无菜品</h3>
+                    <p>当前没有可用的菜品，请稍后再试</p>
+                </div>
+            `;
+            dishGrid.appendChild(emptyMessage);
+            return;
+        }
+        
+        // Add dish cards
+        dishes.forEach(dish => {
+            const dishCard = document.createElement('div');
+            dishCard.className = 'dish-card';
+            dishCard.innerHTML = `
+                <div class="dish-image">
+                    <img src="${dish.image}" alt="${dish.name}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px 8px 0 0;">
+                    ${dish.available ? '<div class="dish-status available">可预订</div>' : '<div class="dish-status unavailable">暂不可订</div>'}
+                </div>
+                <div class="dish-info" style="padding: 12px;">
+                    <h3 style="margin: 0 0 4px 0; font-size: 18px; color: #333;">${dish.name}</h3>
+                    <p style="margin: 0 0 8px 0; color: #666; font-size: 14px; line-height: 1.4;">${dish.description}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-weight: bold; color: #ff6b6b; font-size: 20px;">¥${dish.price}</span>
+                        <div style="display: flex; align-items: center;">
+                            <span style="color: #ffa726; margin-right: 4px;">★</span>
+                            <span style="font-size: 14px; color: #666;">${dish.rating.toFixed(1)}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 14px; color: #666; font-weight: 500;">厨师: ${dish.cook}</span>
+                        <span style="font-size: 12px; color: #999; background: #f0f0f0; padding: 2px 6px; border-radius: 10px;">${dish.category}</span>
+                    </div>
+                    ${dish.pickupTime ? `
+                        <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                            取餐时间: ${getPickupTimeText(dish.pickupTime)}
+                        </div>
+                    ` : ''}
+                    <button class="contact-btn" data-dish-id="${dish.id}" style="width: 100%; padding: 8px 16px; background: ${dish.available ? '#ff6b6b' : '#ccc'}; color: white; border: none; border-radius: 6px; cursor: ${dish.available ? 'pointer' : 'not-allowed'}; font-size: 14px; font-weight: 500;" ${!dish.available ? 'disabled' : ''}>
+                        ${dish.available ? '查看详情' : '暂不可订'}
+                    </button>
+                </div>
+            `;
+            dishCard.style.cssText = 'background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 16px; overflow: hidden; position: relative;';
+            dishGrid.appendChild(dishCard);
+        });
+        
+        // Add click handlers for contact buttons
+        const contactBtns = document.querySelectorAll('.contact-btn');
+        contactBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const dishId = e.target.getAttribute('data-dish-id');
+                const dish = dishes.find(d => d.id === dishId);
+                if (dish && dish.available) {
+                    showCookDetails(dish);
+                }
+            });
+        });
+    }
+    
+    // Helper function to format pickup time
+    function getPickupTimeText(pickupTime) {
+        if (!pickupTime) return '';
+        
+        if (pickupTime.type === 'lunch') {
+            return '午餐时段 (11:30-13:00)';
+        } else if (pickupTime.type === 'dinner') {
+            return '晚餐时段 (17:30-19:00)';
+        } else if (pickupTime.type === 'custom') {
+            return `${pickupTime.start}-${pickupTime.end}`;
+        }
+        return '';
+    }
+    
+    // Function to show cook details modal
+    function showCookDetails(dish) {
+        // Create modal backdrop
+        const backdrop = document.createElement('div');
+        backdrop.style.cssText = `
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        `;
+        
+        // Create modal content
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            background: white; border-radius: 12px; max-width: 400px; width: 100%;
+            max-height: 80vh; overflow-y: auto; position: relative;
+        `;
+        
+        modal.innerHTML = `
+            <div style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; color: #333;">${dish.name}</h3>
+                <button id="closeModal" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+            </div>
+            <div style="padding: 20px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="${dish.image}" alt="${dish.name}" style="width: 100%; max-width: 300px; height: 200px; object-fit: cover; border-radius: 8px;">
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <h4 style="margin: 0 0 8px 0; color: #333;">菜品信息</h4>
+                    <p style="margin: 0 0 8px 0; color: #666;">${dish.description}</p>
+                    <p style="margin: 0; font-size: 24px; font-weight: bold; color: #ff6b6b;">¥${dish.price}</p>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <h4 style="margin: 0 0 8px 0; color: #333;">厨师信息</h4>
+                    <p style="margin: 0 0 4px 0; color: #666;"><strong>厨师:</strong> ${dish.cook}</p>
+                    <p style="margin: 0 0 4px 0; color: #666;"><strong>评分:</strong> ${dish.rating.toFixed(1)} ★</p>
+                    <p style="margin: 0; color: #666;"><strong>菜系:</strong> ${dish.category}</p>
+                </div>
+                
+                ${dish.pickupTime ? `
+                    <div style="margin-bottom: 16px;">
+                        <h4 style="margin: 0 0 8px 0; color: #333;">取餐时间</h4>
+                        <p style="margin: 0; color: #666;">${getPickupTimeText(dish.pickupTime)}</p>
+                        ${dish.sameDayPickup ? '<p style="margin: 4px 0 0 0; color: #52c41a; font-size: 14px;">✓ 支持当日取餐</p>' : '<p style="margin: 4px 0 0 0; color: #ff4d4f; font-size: 14px;">✗ 仅支持次日及以后取餐</p>'}
+                    </div>
+                ` : ''}
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 8px 0; color: #333;">联系方式</h4>
+                    <p style="margin: 0 0 8px 0; color: #666;">如需预订此菜品，请联系厨师:</p>
+                    <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; border-left: 4px solid #ff6b6b;">
+                        <p style="margin: 0 0 4px 0; color: #333;"><strong>微信:</strong> 请扫描厨师二维码</p>
+                        <p style="margin: 0; color: #333;"><strong>电话:</strong> 请查看厨师资料</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px;">
+                    <button id="contactCook" style="flex: 1; padding: 12px; background: #52c41a; color: white; border: none; border-radius: 6px; font-weight: 500; cursor: pointer;">
+                        联系厨师
+                    </button>
+                    <button id="closeModalBtn" style="flex: 1; padding: 12px; background: #f0f0f0; color: #333; border: none; border-radius: 6px; font-weight: 500; cursor: pointer;">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        backdrop.appendChild(modal);
+        document.body.appendChild(backdrop);
+        
+        // Add event listeners
+        document.getElementById('closeModal').onclick = () => document.body.removeChild(backdrop);
+        document.getElementById('closeModalBtn').onclick = () => document.body.removeChild(backdrop);
+        document.getElementById('contactCook').onclick = () => {
+            alert(`请通过以下方式联系厨师 ${dish.cook}:\n\n1. 查看厨师微信二维码\n2. 拨打厨师电话\n3. 直接与厨师协商预订详情`);
+        };
+        
+        // Close on backdrop click
+        backdrop.onclick = (e) => {
+            if (e.target === backdrop) {
+                document.body.removeChild(backdrop);
+            }
+        };
+    }
+    </script>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" id="navHome">
+            <i class="fas fa-home"></i>
+            <span id="navHomeLabel">主页</span>
+        </div>
+        <div class="nav-item" id="navMy">
+            <i class="fas fa-user"></i>
+            <span id="navMyLabel">我的</span>
+        </div>
+    </nav>
+</body>
+</html> 

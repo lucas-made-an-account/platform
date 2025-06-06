@@ -1,0 +1,55 @@
+        <form id="setupForm" autocomplete="off">
+            <div id="platformDisplay" style="margin-bottom:10px;font-weight:600;"></div>
+            <input id="setupUsername" type="text" placeholder="用户名 (唯一)" required value="">
+            <img id="avatarPreview" class="avatar-preview" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="avatar">
+            <input id="avatarInput" type="file" accept="image/*" style="display:none;">
+            <button id="avatarBtn" type="button" style="margin-bottom:8px;">选择头像</button>
+            <div id="avatarFileName" style="font-size:13px;color:#888;margin-bottom:8px;"></div>
+            <input id="displayName" type="text" placeholder="昵称" required>
+            <button id="finishSetupBtn" type="submit">完成设置</button>
+        </form>
+
+    document.getElementById('setupForm').onsubmit = function(e) {
+        e.preventDefault();
+        const lang = document.getElementById('setupLang').value;
+        const username = document.getElementById('setupUsername').value.trim();
+        const displayName = document.getElementById('displayName').value.trim();
+        if (!username) {
+            alert('用户名是必填项');
+            return;
+        }
+        if (!displayName) {
+            alert(setupLangMap[lang].displayName + ' ' + (lang === 'zh' ? '是必填项' : 'is required'));
+            return;
+        }
+        // Check for unique username
+        let users = JSON.parse(localStorage.getItem('users') || '[]');
+        if (users.some(u => u.username === username)) {
+            alert(lang === 'zh' ? '用户名已存在，请选择其他用户名。' : 'Username already exists. Please choose another.');
+            return;
+        }
+        // Save avatar as base64
+        const avatar = document.getElementById('avatarPreview').src;
+        const type = getPlatform();
+        // Get passwordHash from sessionStorage
+        const passwordHash = sessionStorage.getItem('newAccountPassword') || '';
+        // Add new user
+        const user = { username, passwordHash, type, displayName, avatar };
+        users.push(user);
+        localStorage.setItem('users', JSON.stringify(users));
+        // Save current user for the app
+        localStorage.setItem(type + 'User', JSON.stringify(user));
+        alert(setupLangMap[lang].setupSuccess);
+        if (type === 'cook') {
+            window.location.href = 'cook-app.html';
+        } else {
+            window.location.href = 'consumer-app.html';
+        }
+    };
+
+    // On page load, show platform
+    window.addEventListener('DOMContentLoaded', function() {
+        const type = getPlatform();
+        document.getElementById('setupUsername').value = '';
+        document.getElementById('platformDisplay').textContent = type === 'cook' ? '正在创建：厨师账号' : '正在创建：消费者账号';
+    }); 
