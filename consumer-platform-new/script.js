@@ -1459,6 +1459,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // 加载数据
+    function loadData() {
+        // Load app data from localStorage
+        const savedAppData = localStorage.getItem('appData');
+        if (savedAppData) {
+            const parsedData = JSON.parse(savedAppData);
+            // Merge saved data with default appData
+            appData.dishes = parsedData.dishes || [];
+            appData.settings = parsedData.settings || appData.settings;
+            appData.kitchenInfo = parsedData.kitchenInfo || appData.kitchenInfo;
+            appData.reviews = parsedData.reviews || [];
+            appData.profile = parsedData.profile || appData.profile;
+        }
+    }
+
     // 初始化页面
     function initPage() {
         // Load data first
@@ -1848,15 +1863,6 @@ document.addEventListener('DOMContentLoaded', function() {
         toast.addEventListener('hidden.bs.toast', () => {
             container.remove();
         });
-    }
-
-    // 加载数据
-    function loadData() {
-        const savedData = localStorage.getItem('appData');
-        if (savedData) {
-            const parsed = JSON.parse(savedData);
-            Object.assign(appData, parsed);
-        }
     }
 
     // 更新个人资料统计
