@@ -680,8 +680,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
-            // 如果切换到主页，初始化地图
-            if (targetPage === 'main') {
+            // 如果切换到主页或我的资料页，初始化地图
+            if (targetPage === 'main' || targetPage === 'profile') {
+                console.log('🔄 Page switched to:', targetPage, 'Initializing map...');
                 setTimeout(() => {
                     initMap();
                 }, 100);
@@ -1360,192 +1361,202 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('🗺️ initMap called');
         console.log('🔍 Checking if Leaflet is available:', typeof L !== 'undefined');
         
+        // Check if Leaflet is available
         if (typeof L === 'undefined') {
             console.error('❌ Leaflet is not loaded!');
-            // Retry after a delay
+            // Retry after 1 second
             setTimeout(() => {
-                console.log('🔄 Retrying map initialization...');
+                console.log('🔄 Retrying initMap...');
                 initMap();
             }, 1000);
             return;
         }
-        
+
         const mapElement = document.getElementById('map');
-        console.log('🎯 Map element found:', !!mapElement);
+        console.log('🗺️ Map element found:', !!mapElement);
         
         if (!mapElement) {
             console.error('❌ Map element not found!');
-            return;
-        }
-        
-        // Check if map container is visible
-        const isVisible = mapElement.offsetWidth > 0 && mapElement.offsetHeight > 0;
-        console.log('👁️ Map container visible:', isVisible);
-        
-        if (!isVisible) {
-            console.log('⏳ Map container not visible yet, retrying...');
+            // Retry after 500ms in case DOM is still loading
             setTimeout(() => initMap(), 500);
             return;
         }
+
+        // Check if map element is visible
+        const isVisible = mapElement.offsetWidth > 0 && mapElement.offsetHeight > 0;
+        console.log('👁️ Map element visible:', isVisible, 'Size:', mapElement.offsetWidth, 'x', mapElement.offsetHeight);
         
-        // Clean up existing map if it exists
-        if (window.cookMap) {
-            console.log('🧹 Cleaning up existing map...');
-            try {
+        if (!isVisible) {
+            console.warn('⚠️ Map element not visible, retrying...');
+            setTimeout(() => initMap(), 500);
+            return;
+        }
+
+        try {
+            // Clear any existing map instance
+            if (window.cookMap) {
+                console.log('🧹 Cleaning up existing map...');
                 window.cookMap.remove();
                 window.cookMap = null;
-                window.locationMarker = null;
-            } catch (error) {
-                console.warn('Warning cleaning up map:', error);
             }
-        }
-        
-        try {
-            // Clear map container
-            mapElement.innerHTML = '';
+
+            console.log('🚀 Creating new map...');
             
-            // Ensure the map container has proper dimensions
-            mapElement.style.height = '200px';
-            mapElement.style.width = '100%';
-            mapElement.style.background = '#f0f0f0';
-            mapElement.style.border = '1px solid #ddd';
-            mapElement.style.borderRadius = '8px';
-            
-            console.log('🏗️ Creating map...');
-            
-            // Create map with simpler configuration
+            // Create map with error handling
             window.cookMap = L.map(mapElement, {
-                center: [39.9042, 116.4074],
+                center: [39.9042, 116.4074], // Beijing coordinates
                 zoom: 15,
                 zoomControl: true,
-                attributionControl: false
+                attributionControl: true
             });
-            
-            console.log('✅ Map created successfully');
-            
-            // Add OpenStreetMap tiles with error handling
-            console.log('🗺️ Adding tiles...');
-            const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 18,
-                timeout: 10000
-            });
-            
-            tileLayer.on('tileerror', function(error) {
-                console.error('Tile loading error:', error);
-                // Try alternative tile server
-                console.log('🔄 Trying alternative tile server...');
-                const fallbackLayer = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
-                    attribution: '© CartoDB',
-                    maxZoom: 18
-                });
-                fallbackLayer.addTo(window.cookMap);
-            });
-            
-            tileLayer.on('tileload', function() {
-                console.log('✅ Tiles loaded successfully');
-            });
-            
-            tileLayer.addTo(window.cookMap);
-            
-            // Add marker
-            window.locationMarker = L.marker([39.9042, 116.4074])
-                .addTo(window.cookMap)
-                .bindPopup('当前位置');
-            
-            // Force map to resize properly with multiple attempts
-            setTimeout(() => {
-                if (window.cookMap) {
-                    console.log('🔧 Invalidating map size...');
-                    window.cookMap.invalidateSize();
-                    window.cookMap.setView([39.9042, 116.4074], 15);
-                }
-            }, 200);
-            
-            setTimeout(() => {
-                if (window.cookMap) {
-                    window.cookMap.invalidateSize();
-                }
-            }, 500);
-            
-            setTimeout(() => {
-                if (window.cookMap) {
-                    window.cookMap.invalidateSize();
-                }
-            }, 1000);
-            
-            console.log('🎉 Map initialized successfully');
 
-            // Add click listener to update location button
-            const editLocationBtn = document.getElementById('edit-location-btn');
-            if (editLocationBtn) {
+            console.log('✅ Map created successfully');
+
+            // Add tile layer with multiple fallback options
+            const tileUrls = [
+                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+                'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png'
+            ];
+
+            let tileLayerAdded = false;
+            
+            for (let i = 0; i < tileUrls.length && !tileLayerAdded; i++) {
+                try {
+                    const tileLayer = L.tileLayer(tileUrls[i], {
+                        attribution: i === 0 ? '© OpenStreetMap contributors' : 
+                                    i === 1 ? '© OpenStreetMap France' : 
+                                    '© CartoDB',
+                        maxZoom: 19,
+                        timeout: 10000
+                    });
+
+                    tileLayer.addTo(window.cookMap);
+                    console.log(`✅ Tile layer ${i + 1} added successfully`);
+                    tileLayerAdded = true;
+
+                    // Handle tile load errors
+                    tileLayer.on('tileerror', function(e) {
+                        console.warn('⚠️ Tile load error:', e);
+                    });
+
+                } catch (error) {
+                    console.warn(`⚠️ Failed to add tile layer ${i + 1}:`, error);
+                }
+            }
+
+            if (!tileLayerAdded) {
+                console.error('❌ Failed to add any tile layer');
+            }
+
+            // Add a marker for current location
+            const marker = L.marker([39.9042, 116.4074]).addTo(window.cookMap);
+            marker.bindPopup('📍 当前位置').openPopup();
+            console.log('📍 Marker added');
+
+            // Force map to resize and refresh
+            setTimeout(() => {
+                if (window.cookMap) {
+                    console.log('🔄 Invalidating map size...');
+                    window.cookMap.invalidateSize();
+                    
+                    // Multiple resize attempts
+                    setTimeout(() => window.cookMap && window.cookMap.invalidateSize(), 100);
+                    setTimeout(() => window.cookMap && window.cookMap.invalidateSize(), 300);
+                    setTimeout(() => window.cookMap && window.cookMap.invalidateSize(), 600);
+                }
+            }, 100);
+
+            // Add location update button functionality
+            const updateLocationBtn = document.getElementById('updateLocation');
+            if (updateLocationBtn) {
                 // Remove existing event listeners
-                editLocationBtn.replaceWith(editLocationBtn.cloneNode(true));
-                const newEditLocationBtn = document.getElementById('edit-location-btn');
+                updateLocationBtn.replaceWith(updateLocationBtn.cloneNode(true));
+                const newBtn = document.getElementById('updateLocation');
                 
-                newEditLocationBtn.addEventListener('click', function() {
-                    console.log('📍 Location update requested');
+                newBtn.addEventListener('click', function() {
+                    console.log('📍 Update location clicked');
+                    newBtn.textContent = '定位中...';
+                    newBtn.disabled = true;
+
                     if (navigator.geolocation) {
-                        newEditLocationBtn.textContent = '定位中...';
-                        newEditLocationBtn.disabled = true;
-                        
                         navigator.geolocation.getCurrentPosition(
-                            (position) => {
-                                const pos = {
-                                    lat: position.coords.latitude,
-                                    lng: position.coords.longitude
-                                };
+                            function(position) {
+                                const lat = position.coords.latitude;
+                                const lng = position.coords.longitude;
+                                console.log('📍 Got location:', lat, lng);
                                 
-                                console.log('📍 Got position:', pos);
-                                
-                                // Update map
                                 if (window.cookMap) {
-                                    window.cookMap.setView([pos.lat, pos.lng], 15);
+                                    window.cookMap.setView([lat, lng], 15);
                                     
-                                    // Add or update marker
-                                    if (window.locationMarker) {
-                                        window.locationMarker.setLatLng([pos.lat, pos.lng]);
-                                    } else {
-                                        window.locationMarker = L.marker([pos.lat, pos.lng]).addTo(window.cookMap);
+                                    // Update marker
+                                    if (marker) {
+                                        marker.setLatLng([lat, lng]);
+                                        marker.bindPopup('📍 您的当前位置').openPopup();
                                     }
-                                    
-                                    window.locationMarker.bindPopup('您的位置').openPopup();
                                 }
                                 
-                                // Save location to app data
-                                appData.profile.location = pos;
-                                localStorage.setItem('appData', JSON.stringify(appData));
-                                
-                                showToast('位置已更新');
-                                newEditLocationBtn.textContent = '更新位置';
-                                newEditLocationBtn.disabled = false;
+                                newBtn.textContent = '更新位置';
+                                newBtn.disabled = false;
                             },
-                            (error) => {
-                                console.error('Error getting location:', error);
-                                showToast('无法获取位置信息，请检查位置权限设置', 'error');
-                                newEditLocationBtn.textContent = '更新位置';
-                                newEditLocationBtn.disabled = false;
+                            function(error) {
+                                console.error('❌ Geolocation error:', error);
+                                alert('无法获取位置信息：' + error.message);
+                                newBtn.textContent = '更新位置';
+                                newBtn.disabled = false;
+                            },
+                            {
+                                enableHighAccuracy: true,
+                                timeout: 10000,
+                                maximumAge: 60000
                             }
                         );
                     } else {
-                        showToast('您的浏览器不支持地理定位', 'error');
-                        newEditLocationBtn.textContent = '更新位置';
-                        newEditLocationBtn.disabled = false;
+                        alert('您的浏览器不支持地理定位');
+                        newBtn.textContent = '更新位置';
+                        newBtn.disabled = false;
                     }
                 });
+                console.log('🔘 Location button event listener added');
             }
+
+            console.log('🎉 Map initialization completed successfully!');
+
         } catch (error) {
-            console.error('❌ Error initializing map:', error);
-            // Fallback: show a simple message
-            mapElement.innerHTML = `
-                <div style="height: 200px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; color: #666; border: 1px solid #ddd; border-radius: 8px;">
-                    <div style="text-align: center;">
-                        <i class="bi bi-geo-alt" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
-                        地图加载失败<br>
-                        <small>请点击下方按钮获取位置</small>
+            console.error('❌ Error creating map:', error);
+            
+            // Show user-friendly error message
+            if (mapElement) {
+                mapElement.innerHTML = `
+                    <div style="
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center; 
+                        height: 200px; 
+                        background: #f5f5f5; 
+                        border: 1px solid #ddd; 
+                        border-radius: 8px;
+                        color: #666;
+                        text-align: center;
+                        padding: 20px;
+                    ">
+                        <div>
+                            <div style="font-size: 24px; margin-bottom: 10px;">🗺️</div>
+                            <div>地图加载失败</div>
+                            <div style="font-size: 12px; margin-top: 5px;">请检查网络连接或刷新页面</div>
+                            <button onclick="initMap()" style="
+                                margin-top: 10px; 
+                                padding: 5px 15px; 
+                                background: #007cba; 
+                                color: white; 
+                                border: none; 
+                                border-radius: 4px; 
+                                cursor: pointer;
+                            ">重试</button>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
         }
     }
 
