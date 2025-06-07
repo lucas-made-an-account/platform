@@ -1469,7 +1469,28 @@ document.addEventListener('DOMContentLoaded', function() {
             showSetupWizard();
             return; // Don't initialize the rest until setup is complete
         }
-        
+
+        // Initialize logout functionality
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function() {
+                if (confirm('确定要退出登录吗？')) {
+                    // Clear user data
+                    localStorage.removeItem('cookUser');
+                    localStorage.removeItem('consumerUser');
+                    localStorage.removeItem('appData');
+                    
+                    // Show success message
+                    showToast('已成功退出登录');
+                    
+                    // Redirect to login page after a short delay
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1000);
+                }
+            });
+        }
+
         // 初始化菜品页面
         renderDishes();
         
@@ -2074,27 +2095,6 @@ document.addEventListener('DOMContentLoaded', function() {
             item.classList.remove('active');
             if (item.getAttribute('data-page') === 'main') {
                 item.classList.add('active');
-            }
-        });
-    }
-
-    // Logout functionality
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function() {
-            if (confirm('确定要退出登录吗？')) {
-                // Clear user data
-                localStorage.removeItem('cookUser');
-                localStorage.removeItem('consumerUser');
-                localStorage.removeItem('appData');
-                
-                // Show success message
-                showToast('已成功退出登录');
-                
-                // Redirect to login page after a short delay
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 1000);
             }
         });
     }
